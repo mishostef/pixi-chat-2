@@ -103,7 +103,7 @@ function createGraphicObjects(
   );
   const sendBtn = new Button(
     "Send",
-    sendMessage.bind(null, textInput),
+    sendMessage,
     createPanel(buttonTiles, 150, 50, 0xdb4e12),
     createPanel(hlTiles, 150, 50),
     createPanel(pressedTiles, 150, 50)
@@ -134,14 +134,13 @@ function onInputClick() {
   this.label = "|";
 }
 
-function sendMessage(textInput: Button) {
+function sendMessage() {
   myMessages.push(currentMessage);
   socket.emit("msg", {
     message: currentMessage,
     id,
   });
   currentMessage = "";
-  textInput.label = "|";
 }
 
 function refreshOutput(textOutput: Button) {
@@ -156,6 +155,7 @@ function refreshOutput(textOutput: Button) {
       PIXI.Assets.load("../assets/font/desyrel.png"),
     ]).then(() => {
       appendMessage(textOutput);
+      isBitmapFontLoaded = true;//
     });
   }
 }

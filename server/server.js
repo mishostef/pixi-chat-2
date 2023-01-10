@@ -3,7 +3,7 @@ const express = require("express");
 const socketIO = require("socket.io");
 const cors = require("cors");
 const app = express();
-
+const idNameMap = {};
 const corsOptions = {
   origin: [
     "http://localhost:8080",
@@ -63,6 +63,11 @@ function initGame(roomId, players, socket) {
     io.to(roomId).emit("message", data);
   });
 
+  socket.on("auth", (data) => {
+    console.log(JSON.stringify(data));
+    idNameMap[data.id] = data.username;
+    socket.emit("ack", data.username);
+  });
   socket.on("disconnect", () => {
     console.log(`Player id = ${socket.id} left`);
     players.delete(socket);

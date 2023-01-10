@@ -60,6 +60,7 @@ function initGame(roomId, players, socket) {
   socket.on("msg", (data) => {
     console.log(JSON.stringify(data));
     console.log("socketId=", socket.id);
+    data.name = idNameMap[socket.id];
     io.to(roomId).emit("message", data);
   });
 

@@ -19,7 +19,13 @@ const ouputWidth = 750;
 const ouputHeight = 475;
 let isBitmapFontLoaded = false;
 
+let currentUsername = "";
+let currentPass = "";
+let activeInput = "";
+let isInitialScreenVible = true;
+
 import { io } from "socket.io-client";
+import { Text, TextStyle } from "pixi.js";
 let socket = io("http://localhost:3000/");
 console.log(io);
 let id = "";
@@ -30,10 +36,16 @@ socket.on("connect", () => {
 
 socket.on("error", (error) => alert(error));
 
-socket.on("message", ({ message, id: sym }) => {
+socket.on("message", ({ message, name: sym }) => {
   myMessages.push(`${sym} said: ${message}`);
   isRefreshOutputNeeded = true;
 });
+
+socket.on("ack", (username) => {
+  console.log(`my username is ${username}`);
+  isInitialScreenVible = false;
+});
+
 socket.emit("selectRoom", { roomId: "1" });
 init();
 
@@ -41,15 +53,33 @@ document.body.addEventListener("keydown", (event) => {
   const key = event.key;
   console.log(key);
   if (isAlphaNumeric(key) || key === " ") {
-    currentMessage += key;
+    if (isInitialScreenVible) {
+      activeInput == "pass" ? (currentPass += key) : (currentUsername += key);
+    } else {
+      currentMessage += key;
+    }
   } else if (key === "Enter") {
-    socket.emit("msg", {
-      message: currentMessage,
-      id,
-    });
-    currentMessage = "";
+    if (isInitialScreenVible) {
+      socket.emit("auth", {
+        username: currentUsername,
+        password: currentPass,
+        id,
+      });
+    } else {
+      socket.emit("msg", {
+        message: currentMessage,
+        id,
+      });
+      currentMessage = "";
+    }
   } else if (key === "Backspace") {
-    currentMessage = currentMessage.slice(0, -1);
+    if (isInitialScreenVible) {
+      activeInput == "pass"
+        ? (currentPass = currentPass.slice(0, -1))
+        : (currentUsername = currentUsername.slice(0, -1));
+    } else {
+      currentMessage = currentMessage.slice(0, -1);
+    }
   }
 });
 
@@ -64,7 +94,11 @@ async function init() {
   const hlTiles = await tileTexture("assets/hover.png", 25, 105, 25, 105);
   const pressedTiles = await tileTexture("assets/inset.png", 25, 105, 25, 105);
 
-  const { ui, textInput, textOutput } = createGraphicObjects(
+  const { usernameInput, passInput, initialUi, clearAuth, sendAuth } =
+    createAuthObjects(buttonTiles, hlTiles, pressedTiles);
+
+  app.stage.addChild(initialUi);
+  const { ui, textInput, textOutput, clearBtn, sendBtn } = createGraphicObjects(
     buttonTiles,
     hlTiles,
     pressedTiles
@@ -73,10 +107,23 @@ async function init() {
   app.stage.addChild(ui);
   app.ticker.add(update);
   function update() {
-    textInput.label = currentMessage + "|";
-    if (isRefreshOutputNeeded) {
-      refreshOutput(textOutput);
-      isRefreshOutputNeeded = false;
+    initialUi.renderable = isInitialScreenVible;
+    clearAuth.renderable = isInitialScreenVible;
+    sendAuth.renderable = isInitialScreenVible;
+
+    ui.renderable = !isInitialScreenVible;
+    clearBtn.interactive = !isInitialScreenVible;
+    sendBtn.interactive = !isInitialScreenVible;
+    if (isInitialScreenVible) {
+      usernameInput.label =
+        activeInput == "pass" ? currentUsername : currentUsername + "|";
+      passInput.label = activeInput == "pass" ? currentPass + "|" : currentPass;
+    } else {
+      textInput.label = currentMessage + "|";
+      if (isRefreshOutputNeeded) {
+        refreshOutput(textOutput);
+        isRefreshOutputNeeded = false;
+      }
     }
   }
   document.body.appendChild(app.view as HTMLCanvasElement);
@@ -127,7 +174,7 @@ function createGraphicObjects(
   buttonContainer.addChild(clearBtn, sendBtn);
   const ui = new PIXI.Container();
   ui.addChild(textOutput, textInput, buttonContainer);
-  return { ui, textInput, textOutput };
+  return { ui, textInput, textOutput, clearBtn, sendBtn };
 }
 
 function onInputClick() {
@@ -155,7 +202,7 @@ function refreshOutput(textOutput: Button) {
       PIXI.Assets.load("../assets/font/desyrel.png"),
     ]).then(() => {
       appendMessage(textOutput);
-      isBitmapFontLoaded = true;//
+      isBitmapFontLoaded = true; //
     });
   }
 }
@@ -198,4 +245,94 @@ function clearOutput() {
 
 function clearInput() {
   currentMessage = "";
+}
+
+function createAuthObjects(
+  buttonTiles: TiledTexture,
+  hlTiles: TiledTexture,
+  pressedTiles: TiledTexture
+) {
+  const clearBtn = new Button(
+    "Clear",
+    clearInput,
+    createPanel(buttonTiles, 150, 50),
+    createPanel(hlTiles, 150, 50),
+    createPanel(pressedTiles, 150, 50)
+  );
+  const style = new TextStyle({
+    fontFamily: "Arial",
+    fontSize: 24,
+    fill: 0xffffff,
+  });
+  const usernameText = new Text("username", style);
+  usernameText.position.set(25, 500);
+  const passText = new Text("password", style);
+  passText.position.set(25, 575);
+  const usernameInput = new Button(
+    "input, click to activate",
+    onInputClick,
+    createPanel(buttonTiles, 575, 50),
+    createPanel(hlTiles, 575, 50),
+    createPanel(pressedTiles, 575, 50)
+  );
+  const passInput = new Button(
+    "pass",
+    onInputClick,
+    createPanel(buttonTiles, 575, 50),
+    createPanel(hlTiles, 575, 50),
+    createPanel(pressedTiles, 575, 50)
+  );
+  passInput.name = "pass";
+
+  const sendBtn = new Button(
+    "Send",
+    sendMessage1,
+    createPanel(buttonTiles, 150, 50, 0xdb4e12),
+    createPanel(hlTiles, 150, 50),
+    createPanel(pressedTiles, 150, 50)
+  );
+
+  usernameInput.position.set(25, 525);
+  passInput.position.set(25, 600);
+  const buttonContainer = new PIXI.Container();
+
+  clearBtn.position.set(0, 0);
+  sendBtn.position.set(0, 60);
+  buttonContainer.position.set(625, 525);
+
+  buttonContainer.addChild(clearBtn, sendBtn);
+  const initialUi = new PIXI.Container();
+  initialUi.addChild(
+    usernameInput,
+    passInput,
+    buttonContainer,
+    usernameText,
+    passText
+  );
+
+  function sendMessage1() {
+    socket.emit("auth", {
+      username: currentUsername,
+      password: currentPass,
+      id,
+    });
+  }
+
+  function onInputClick() {
+    this.label = "|";
+    activeInput = this;
+    if (this.name) {
+      activeInput = "pass";
+    }
+  }
+  function clearInput() {
+    currentUsername = "";
+  }
+  return {
+    initialUi,
+    passInput,
+    usernameInput,
+    sendAuth: sendBtn,
+    clearAuth: clearBtn,
+  };
 }

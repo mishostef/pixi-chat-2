@@ -50,26 +50,9 @@ async function init() {
         createChat.lastMessage += key;
       }
     } else if (key === "Enter") {
-      if (isInitialScreenVible) {
-        socket.emit("auth", {
-          username: authObjects.username,
-          password: authObjects.password,
-          id: socket.id,
-        });
-      } else {
-        socket.emit("msg", {
-          message: createChat.lastMessage,
-          id: socket.id,
-        });
-      }
+      handleEnter(authObjects, createChat);
     } else if (key === "Backspace") {
-      if (isInitialScreenVible) {
-        authObjects.passInput.isActive
-          ? (authObjects.password = authObjects.password.slice(0, -1))
-          : (authObjects.username = authObjects.username.slice(0, -1));
-      } else {
-        createChat.lastMessage = createChat.lastMessage.slice(0, -1);
-      }
+      hanleBackspace(authObjects, createChat);
     }
   });
 
@@ -113,7 +96,6 @@ async function init() {
           message: createChat.lastMessage,
           id: socket.id,
         });
-        console.log("Message sent");
         createChat.isMessageAck = false;
         createChat.lastMessage = "";
       }
@@ -126,4 +108,28 @@ async function init() {
     }
   }
   document.body.appendChild(app.view as HTMLCanvasElement);
+}
+function handleEnter(authObjects: createAuthObjects, createChat: createChatUI) {
+  if (isInitialScreenVible) {
+    socket.emit("auth", {
+      username: authObjects.username,
+      password: authObjects.password,
+      id: socket.id,
+    });
+  } else {
+    socket.emit("msg", {
+      message: createChat.lastMessage,
+      id: socket.id,
+    });
+  }
+}
+
+function hanleBackspace(authObjects: createAuthObjects, createChat: createChatUI) {
+  if (isInitialScreenVible) {
+    authObjects.passInput.isActive
+      ? (authObjects.password = authObjects.password.slice(0, -1))
+      : (authObjects.username = authObjects.username.slice(0, -1));
+  } else {
+    createChat.lastMessage = createChat.lastMessage.slice(0, -1);
+  }
 }

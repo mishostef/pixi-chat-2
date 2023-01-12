@@ -40,15 +40,8 @@ async function init() {
 
   document.body.addEventListener("keydown", (event) => {
     const key = event.key;
-    console.log(key);
     if (isAlphaNumeric(key) || key === " ") {
-      if (isInitialScreenVible) {
-        authObjects.passInput.isActive
-          ? (authObjects.password += key)
-          : (authObjects.username += key);
-      } else {
-        createChat.lastMessage += key;
-      }
+      handleAlphanumeric(authObjects, key, createChat);
     } else if (key === "Enter") {
       handleEnter(authObjects, createChat);
     } else if (key === "Backspace") {
@@ -76,39 +69,58 @@ async function init() {
     createChat.sendBtn.interactive = !isInitialScreenVible;
     createChat.textInput.interactive = !isInitialScreenVible;
     if (isInitialScreenVible) {
-      if (authObjects.isSendConfirmed) {
-        socket.emit("auth", {
-          username: authObjects.username,
-          password: authObjects.password,
-          id: socket.id,
-        });
-      }
-      if (authObjects.usernameInput.isActive) {
-        authObjects.usernameInput.label = authObjects.username + "|";
-        authObjects.passInput.label = authObjects.password;
-      } else {
-        authObjects.usernameInput.label = authObjects.username;
-        authObjects.passInput.label = authObjects.password + "|";
-      }
+      handleAuth(authObjects);
     } else {
-      if (createChat.isMessageAck) {
-        socket.emit("msg", {
-          message: createChat.lastMessage,
-          id: socket.id,
-        });
-        createChat.isMessageAck = false;
-        createChat.lastMessage = "";
-      }
-      createChat.textInput.label = createChat.lastMessage + "|";
-
-      if (isRefreshOutputNeeded) {
-        createChat.textOutput.refreshOutput();
-        isRefreshOutputNeeded = false;
-      }
+      handleChat(createChat);
     }
   }
   document.body.appendChild(app.view as HTMLCanvasElement);
 }
+
+function handleAlphanumeric(authObjects: createAuthObjects, key: string, createChat: createChatUI) {
+  if (isInitialScreenVible) {
+    authObjects.passInput.isActive
+      ? (authObjects.password += key)
+      : (authObjects.username += key);
+  } else {
+    createChat.lastMessage += key;
+  }
+}
+
+function handleChat(createChat: createChatUI) {
+  if (createChat.isMessageAck) {
+    socket.emit("msg", {
+      message: createChat.lastMessage,
+      id: socket.id,
+    });
+    createChat.isMessageAck = false;
+    createChat.lastMessage = "";
+  }
+  createChat.textInput.label = createChat.lastMessage + "|";
+
+  if (isRefreshOutputNeeded) {
+    createChat.textOutput.refreshOutput();
+    isRefreshOutputNeeded = false;
+  }
+}
+
+function handleAuth(authObjects: createAuthObjects) {
+  if (authObjects.isSendConfirmed) {
+    socket.emit("auth", {
+      username: authObjects.username,
+      password: authObjects.password,
+      id: socket.id,
+    });
+  }
+  if (authObjects.usernameInput.isActive) {
+    authObjects.usernameInput.label = authObjects.username + "|";
+    authObjects.passInput.label = authObjects.password;
+  } else {
+    authObjects.usernameInput.label = authObjects.username;
+    authObjects.passInput.label = authObjects.password + "|";
+  }
+}
+
 function handleEnter(authObjects: createAuthObjects, createChat: createChatUI) {
   if (isInitialScreenVible) {
     socket.emit("auth", {

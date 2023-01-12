@@ -115,8 +115,10 @@ async function init() {
         });
         console.log("Message sent");
         createChat.isMessageAck = false;
+        createChat.lastMessage = "";
       }
       createChat.textInput.label = createChat.lastMessage + "|";
+
       if (isRefreshOutputNeeded) {
         createChat.textOutput.refreshOutput();
         isRefreshOutputNeeded = false;

@@ -67,7 +67,7 @@ export class createChatUI extends PIXI.Container {
 
   sendMessage() {
     this.lastMessage = this.textInput.label.slice(0, -1);
-    this.isMessageAck = true;    
+    this.isMessageAck = true;
   }
 
   clearInput() {

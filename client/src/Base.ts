@@ -6,13 +6,12 @@ const style = new TextStyle({
   fill: 0xffffff,
 });
 
-export class Button extends Container {
+export class Base extends Container {
   private _label: string;
   private text: Text;
 
   constructor(
     label: string,
-    private callback: () => void,
     private element: DisplayObject,
     private highlight: DisplayObject,
     private pressed: DisplayObject
@@ -69,11 +68,9 @@ export class Button extends Container {
     this.pressed.renderable = true;
   }
 
-  private onUp() {
+  protected onUp() {
     this.element.renderable = true;
     this.highlight.renderable = false;
     this.pressed.renderable = false;
-    const cb = this.callback.bind(this);
-    cb();
   }
 }

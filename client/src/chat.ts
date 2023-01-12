@@ -1,6 +1,8 @@
 import { Button } from "./Button";
 import { TiledTexture, createPanel } from "./utility";
 import * as PIXI from "pixi.js";
+import { Input } from "./Input";
+import { TextArea } from "./TextArea";
 const ouputWidth = 750;
 const ouputHeight = 475;
 const initialBitmapTextX = 30;
@@ -105,21 +107,79 @@ export function createGraphicObjects(tiles, socket, messages) {
     textOutput.addChild(bitmapFontText);
   }
 
-  function clearOutput() {
-    if (this.label) {
-      this.label = "";
-    }
-    const notTextChildren = this.children.filter(
-      (el) => !(el instanceof PIXI.BitmapText)
-    );
-    this.removeChildren();
-    this.addChild(...notTextChildren);
-    bitmapTextX = initialBitmapTextX;
-    bitmapTextY = initialBitmapTextY;
-  }
+  function clearOutput() {}
 
   function clearInput() {
     messages.currentMessage = "";
+    //textInput.clear();
   }
   return { ui, textInput, textOutput, clearBtn, sendBtn, refreshOutput };
+}
+
+///////////////////////////////////////////////////////////////
+export class createChatUI extends PIXI.Container {
+  clearBtn: Button;
+  textInput: Button;
+  messages: any;
+  constructor(tiles, socket, messages) {
+    super();
+    const { buttonTiles, hlTiles, pressedTiles } = tiles;
+    this.messages = messages;
+    this.clearBtn = new Button(
+      "Clear",
+      this.clearInput,
+      createPanel(buttonTiles, 150, 50),
+      createPanel(hlTiles, 150, 50),
+      createPanel(pressedTiles, 150, 50)
+    );
+    const textInput = new Input(
+      "input, click to activate",
+      createPanel(buttonTiles, 575, 50),
+      createPanel(hlTiles, 575, 50),
+      createPanel(pressedTiles, 575, 50),
+      "message"
+    );
+    const sendBtn = new Button(
+      "Send",
+      this.sendMessage,
+      createPanel(buttonTiles, 150, 50, 0xdb4e12),
+      createPanel(hlTiles, 150, 50),
+      createPanel(pressedTiles, 150, 50)
+    );
+    const textOutput = new TextArea(
+      "chat history",
+      createPanel(buttonTiles, ouputWidth, ouputHeight),
+      createPanel(hlTiles, ouputWidth, ouputHeight),
+      createPanel(pressedTiles, ouputWidth, ouputHeight)
+    );
+
+    textOutput.position.set(25, 25);
+    textInput.position.set(25, 525);
+    const buttonContainer = new PIXI.Container();
+
+    this.clearBtn.position.set(0, 0);
+    sendBtn.position.set(0, 60);
+    buttonContainer.position.set(625, 525);
+
+    buttonContainer.addChild(this.clearBtn, sendBtn);
+    const ui = new PIXI.Container();
+    ui.addChild(textOutput, textInput, buttonContainer);
+  }
+  onInputClick() {
+    this.textInput.label = "|";
+  }
+
+  sendMessage() {
+    this.messages.myMessages.push(this.messages.currentMessage);
+    // socket.emit("msg", {
+    //   message: messages.currentMessage,
+    //   id: socket.id,
+    // });
+    // messages.currentMessage = "";
+  }
+
+  clearInput() {
+    this.messages.currentMessage = "";
+  }
+  // return { ui, textInput, textOutput, clearBtn, sendBtn, refreshOutput };
 }

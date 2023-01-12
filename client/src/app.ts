@@ -35,42 +35,6 @@ socket.on("ack", (username) => {
 socket.emit("selectRoom", { roomId: "1" });
 init();
 
-document.body.addEventListener("keydown", (event) => {
-  const key = event.key;
-  console.log(key);
-  if (isAlphaNumeric(key) || key === " ") {
-    if (isInitialScreenVible) {
-      auth.activeInput == "pass"
-        ? (auth.currentPass += key)
-        : (auth.currentUsername += key);
-    } else {
-      messages.currentMessage += key;
-    }
-  } else if (key === "Enter") {
-    if (isInitialScreenVible) {
-      socket.emit("auth", {
-        username: auth.currentUsername,
-        password: auth.currentPass,
-        id: socket.id,
-      });
-    } else {
-      socket.emit("msg", {
-        message: messages.currentMessage,
-        id: socket.id,
-      });
-      messages.currentMessage = "";
-    }
-  } else if (key === "Backspace") {
-    if (isInitialScreenVible) {
-      auth.activeInput == "pass"
-        ? (auth.currentPass = auth.currentPass.slice(0, -1))
-        : (auth.currentUsername = auth.currentUsername.slice(0, -1));
-    } else {
-      messages.currentMessage = messages.currentMessage.slice(0, -1);
-    }
-  }
-});
-
 async function init() {
   const app = new PIXI.Application({
     width: canvasWidht,
@@ -82,30 +46,75 @@ async function init() {
   const hlTiles = await tileTexture("assets/hover.png", 25, 105, 25, 105);
   const pressedTiles = await tileTexture("assets/inset.png", 25, 105, 25, 105);
   const tiles = { buttonTiles, hlTiles, pressedTiles };
-  const { usernameInput, passInput, initialUi, clearAuth, sendAuth } =
-    createAuthObjects(tiles, socket, auth);
+  const authObjects = new createAuthObjects(tiles);
 
-  app.stage.addChild(initialUi);
+  document.body.addEventListener("keydown", (event) => {
+    const key = event.key;
+    console.log(key);
+    if (isAlphaNumeric(key) || key === " ") {
+      if (isInitialScreenVible) {
+        authObjects.passInput.isActive
+          ? (auth.currentPass += key)
+          : (auth.currentUsername += key);
+      } else {
+        messages.currentMessage += key;
+      }
+    } else if (key === "Enter") {
+      if (isInitialScreenVible) {
+        socket.emit("auth", {
+          username: auth.currentUsername,
+          password: auth.currentPass,
+          id: socket.id,
+        });
+      } else {
+        socket.emit("msg", {
+          message: messages.currentMessage,
+          id: socket.id,
+        });
+        messages.currentMessage = "";
+      }
+    } else if (key === "Backspace") {
+      if (isInitialScreenVible) {
+        authObjects.passInput.isActive
+          ? (auth.currentPass = auth.currentPass.slice(0, -1))
+          : (auth.currentUsername = auth.currentUsername.slice(0, -1));
+      } else {
+        messages.currentMessage = messages.currentMessage.slice(0, -1);
+      }
+    }
+  });
+
+  app.stage.addChild(authObjects.initialUi);
   const { ui, textInput, textOutput, clearBtn, sendBtn, refreshOutput } =
     createGraphicObjects(tiles, socket, messages);
 
   app.stage.addChild(ui);
   app.ticker.add(update);
   function update() {
-    initialUi.renderable = isInitialScreenVible;
-    clearAuth.renderable = isInitialScreenVible;
-    sendAuth.renderable = isInitialScreenVible;
+    authObjects.initialUi.renderable = isInitialScreenVible;
+    authObjects.clearAuth.renderable = isInitialScreenVible;
+    authObjects.sendAuth.renderable = isInitialScreenVible;
 
     ui.renderable = !isInitialScreenVible;
+    ui.interactive = !isInitialScreenVible;
     clearBtn.interactive = !isInitialScreenVible;
     sendBtn.interactive = !isInitialScreenVible;
+    textInput.interactive = !isInitialScreenVible;
     if (isInitialScreenVible) {
-      usernameInput.label =
-        auth.activeInput == "pass"
-          ? auth.currentUsername
-          : auth.currentUsername + "|";
-      passInput.label =
-        auth.activeInput == "pass" ? auth.currentPass + "|" : auth.currentPass;
+      if (authObjects.isSendConfirmed) {
+        socket.emit("auth", {
+          username: auth.currentUsername,
+          password: auth.currentPass,
+          id: socket.id,
+        });
+      }
+      if (authObjects.usernameInput.isActive) {
+        authObjects.usernameInput.label = auth.currentUsername + "|";
+        authObjects.passInput.label = auth.currentPass;
+      } else {
+        authObjects.usernameInput.label = auth.currentUsername;
+        authObjects.passInput.label = auth.currentPass + "|";
+      }
     } else {
       textInput.label = messages.currentMessage + "|";
       if (isRefreshOutputNeeded) {

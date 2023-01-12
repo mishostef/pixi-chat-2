@@ -1,91 +1,101 @@
 import * as PIXI from "pixi.js";
-import { TextStyle, Text } from "pixi.js";
+import { TextStyle, Text, DisplayObject } from "pixi.js";
 import { Button } from "./Button";
+import { Input } from "./Input";
 import { TiledTexture, createPanel } from "./utility";
 
-export function createAuthObjects(tiles, socket, auth) {
-  const { buttonTiles, hlTiles, pressedTiles } = tiles;
-  const clearBtn = new Button(
-    "Clear",
-    clearInput,
-    createPanel(buttonTiles, 150, 50),
-    createPanel(hlTiles, 150, 50),
-    createPanel(pressedTiles, 150, 50)
-  );
-  const style = new TextStyle({
-    fontFamily: "Arial",
-    fontSize: 24,
-    fill: 0xffffff,
-  });
-  const usernameText = new Text("username", style);
-  usernameText.position.set(25, 500);
-  const passText = new Text("password", style);
-  passText.position.set(25, 575);
-  const usernameInput = new Button(
-    "input, click to activate",
-    onInputClick,
-    createPanel(buttonTiles, 575, 50),
-    createPanel(hlTiles, 575, 50),
-    createPanel(pressedTiles, 575, 50)
-  );
-  const passInput = new Button(
-    "pass",
-    onInputClick,
-    createPanel(buttonTiles, 575, 50),
-    createPanel(hlTiles, 575, 50),
-    createPanel(pressedTiles, 575, 50)
-  );
-  passInput.name = "pass";
+export class createAuthObjects extends PIXI.Container {
+  buttonTiles: DisplayObject;
+  hlTiles: DisplayObject;
+  pressedTiles: DisplayObject;
+  username: string;
+  password: string;
+  initialUi: PIXI.Container;
+  clearAuth: Button;
+  sendAuth: Button;
+  usernameInput: Input;
+  passInput: Input;
+  isSendConfirmed: boolean = false;
+  constructor(tiles) {
+    super();
+    const { buttonTiles, hlTiles, pressedTiles } = tiles;
 
-  const sendBtn = new Button(
-    "Send",
-    sendMessage1,
-    createPanel(buttonTiles, 150, 50, 0xdb4e12),
-    createPanel(hlTiles, 150, 50),
-    createPanel(pressedTiles, 150, 50)
-  );
+    this.clearAuth = new Button(
+      "Clear",
+      this.clearInput,
+      createPanel(buttonTiles, 150, 50),
+      createPanel(hlTiles, 150, 50),
+      createPanel(pressedTiles, 150, 50)
+    );
+    const style = new TextStyle({
+      fontFamily: "Arial",
+      fontSize: 24,
+      fill: 0xffffff,
+    });
+    const usernameText = new Text("username", style);
+    usernameText.position.set(25, 500);
+    const passText = new Text("password", style);
+    passText.position.set(25, 575);
+    this.usernameInput = new Input(
+      "input, click to activate",
+      createPanel(buttonTiles, 575, 50),
+      createPanel(hlTiles, 575, 50),
+      createPanel(pressedTiles, 575, 50),
+      "username"
+    );
+    this.usernameInput.isActive = true;
+    this.passInput = new Input(
+      "pass",
+      createPanel(buttonTiles, 575, 50),
+      createPanel(hlTiles, 575, 50),
+      createPanel(pressedTiles, 575, 50),
+      "pass"
+    );
+    this.passInput.isActive = false;
 
-  usernameInput.position.set(25, 525);
-  passInput.position.set(25, 600);
-  const buttonContainer = new PIXI.Container();
+    this.sendAuth = new Button(
+      "Send",
+      this.sendMessage1.bind(this),
+      createPanel(buttonTiles, 150, 50, 0xdb4e12),
+      createPanel(hlTiles, 150, 50),
+      createPanel(pressedTiles, 150, 50)
+    );
 
-  clearBtn.position.set(0, 0);
-  sendBtn.position.set(0, 60);
-  buttonContainer.position.set(625, 525);
+    this.usernameInput.position.set(25, 525);
+    this.passInput.position.set(25, 600);
+    const buttonContainer = new PIXI.Container();
 
-  buttonContainer.addChild(clearBtn, sendBtn);
-  const initialUi = new PIXI.Container();
-  initialUi.addChild(
-    usernameInput,
-    passInput,
-    buttonContainer,
-    usernameText,
-    passText
-  );
+    this.clearAuth.position.set(0, 0);
+    this.sendAuth.position.set(0, 60);
+    buttonContainer.position.set(625, 525);
 
-  function sendMessage1() {
-    socket.emit("auth", {
-      username: auth.currentUsername,
-      password: auth.currentPass,
-      id: socket.id,
+    buttonContainer.addChild(this.clearAuth, this.sendAuth);
+    this.initialUi = new PIXI.Container();
+    this.initialUi.addChild(
+      this.usernameInput,
+      this.passInput,
+      buttonContainer,
+      usernameText,
+      passText
+    );
+    this.initialUi.interactive = true;
+    this.initialUi.on("click", (ev) => {
+      const target = ev.target;
+      if ((target as Input).name === "username") {
+        this.usernameInput.isActive = true;
+        this.passInput.isActive = false;
+      } else if ((target as Input).name === "pass") {
+        this.usernameInput.isActive = false;
+        this.passInput.isActive = true;
+      }
     });
   }
+  sendMessage1() {
+    this.isSendConfirmed = true;
+    console.log("cb");
+  }
 
-  function onInputClick() {
-    this.label = "|";
-    auth.activeInput = this;
-    if (this.name) {
-      auth.activeInput = "pass";
-    }
+  clearInput() {
+    this.username = "";
   }
-  function clearInput() {
-    auth.currentUsername = "";
-  }
-  return {
-    initialUi,
-    passInput,
-    usernameInput,
-    sendAuth: sendBtn,
-    clearAuth: clearBtn,
-  };
 }

@@ -8,8 +8,8 @@ export class createAuthObjects extends PIXI.Container {
   buttonTiles: DisplayObject;
   hlTiles: DisplayObject;
   pressedTiles: DisplayObject;
-  username: string;
-  password: string;
+  username: string = "";
+  password: string = "";
   initialUi: PIXI.Container;
   clearAuth: Button;
   sendAuth: Button;

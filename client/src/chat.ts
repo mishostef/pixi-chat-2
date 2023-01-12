@@ -14,6 +14,7 @@ export class createChatUI extends PIXI.Container {
   messages: any;
   ui: PIXI.Container;
   isMessageAck: boolean = false;
+  lastMessage: string = "";
   constructor(tiles) {
     super();
     const { buttonTiles, hlTiles, pressedTiles } = tiles;
@@ -65,7 +66,8 @@ export class createChatUI extends PIXI.Container {
   }
 
   sendMessage() {
-    this.isMessageAck = true;
+    this.lastMessage = this.textInput.label.slice(0, -1);
+    this.isMessageAck = true;    
   }
 
   clearInput() {

@@ -2,7 +2,7 @@ import * as PIXI from "pixi.js";
 import { tileTexture, isAlphaNumeric } from "./utility";
 import { io } from "socket.io-client";
 import { createAuthObjects } from "./auth";
-import { createGraphicObjects } from "./chat";
+import { createChatUI } from "./chat";
 const messages = {
   myMessages: [],
   currentMessage: "",
@@ -21,11 +21,6 @@ socket.on("connect", () => {
 });
 
 socket.on("error", (error) => alert(error));
-
-socket.on("message", ({ message, name: sym }) => {
-  messages.myMessages.push(`${sym} said: ${message}`);
-  isRefreshOutputNeeded = true;
-});
 
 socket.on("ack", (username) => {
   console.log(`my username is ${username}`);
@@ -85,21 +80,24 @@ async function init() {
   });
 
   app.stage.addChild(authObjects.initialUi);
-  const { ui, textInput, textOutput, clearBtn, sendBtn, refreshOutput } =
-    createGraphicObjects(tiles, socket, messages);
-
-  app.stage.addChild(ui);
+  
+  const createChat = new createChatUI(tiles);
+  socket.on("message", ({ message, name: sym }) => {
+    createChat.messages.push(`${sym} said: ${message}`);
+    isRefreshOutputNeeded = true;
+  });
+  app.stage.addChild(createChat.ui);
   app.ticker.add(update);
   function update() {
     authObjects.initialUi.renderable = isInitialScreenVible;
     authObjects.clearAuth.renderable = isInitialScreenVible;
     authObjects.sendAuth.renderable = isInitialScreenVible;
 
-    ui.renderable = !isInitialScreenVible;
-    ui.interactive = !isInitialScreenVible;
-    clearBtn.interactive = !isInitialScreenVible;
-    sendBtn.interactive = !isInitialScreenVible;
-    textInput.interactive = !isInitialScreenVible;
+    createChat.ui.renderable = !isInitialScreenVible;
+    createChat.ui.interactive = !isInitialScreenVible;
+    createChat.clearBtn.interactive = !isInitialScreenVible;
+    createChat.sendBtn.interactive = !isInitialScreenVible;
+    createChat.textInput.interactive = !isInitialScreenVible;
     if (isInitialScreenVible) {
       if (authObjects.isSendConfirmed) {
         socket.emit("auth", {
@@ -116,9 +114,18 @@ async function init() {
         authObjects.passInput.label = auth.currentPass + "|";
       }
     } else {
-      textInput.label = messages.currentMessage + "|";
+      if (createChat.isMessageAck) {
+        socket.emit("msg", {
+          message: createChat.textInput.label,
+          id: socket.id,
+        });
+        messages.currentMessage = "";
+        console.log("Message sent");
+        createChat.isMessageAck = false;
+      }
+      createChat.textInput.label = messages.currentMessage + "|";
       if (isRefreshOutputNeeded) {
-        refreshOutput(textOutput);
+        createChat.textOutput.refreshOutput();
         isRefreshOutputNeeded = false;
       }
     }

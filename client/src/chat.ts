@@ -29,8 +29,6 @@ export class createChatUI extends PIXI.Container {
     this.textInput = new Input(
       "input, click to activate",
       createPanel(buttonTiles, 575, 50),
-      createPanel(hlTiles, 575, 50),
-      createPanel(pressedTiles, 575, 50),
       "message"
     );
     this.sendBtn = new Button(
@@ -43,8 +41,6 @@ export class createChatUI extends PIXI.Container {
     this.textOutput = new TextArea(
       "chat history",
       createPanel(buttonTiles, ouputWidth, ouputHeight),
-      createPanel(hlTiles, ouputWidth, ouputHeight),
-      createPanel(pressedTiles, ouputWidth, ouputHeight),
       "output",
       this.messages
     );

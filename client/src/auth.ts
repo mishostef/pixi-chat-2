@@ -22,7 +22,7 @@ export class createAuthObjects extends PIXI.Container {
 
     this.clearAuth = new Button(
       "Clear",
-      this.clearInput,
+      this.clearInput.bind(this),
       createPanel(buttonTiles, 150, 50),
       createPanel(hlTiles, 150, 50),
       createPanel(pressedTiles, 150, 50)
@@ -39,16 +39,12 @@ export class createAuthObjects extends PIXI.Container {
     this.usernameInput = new Input(
       "input, click to activate",
       createPanel(buttonTiles, 575, 50),
-      createPanel(hlTiles, 575, 50),
-      createPanel(pressedTiles, 575, 50),
       "username"
     );
     this.usernameInput.isActive = true;
     this.passInput = new Input(
       "pass",
       createPanel(buttonTiles, 575, 50),
-      createPanel(hlTiles, 575, 50),
-      createPanel(pressedTiles, 575, 50),
       "pass"
     );
     this.passInput.isActive = false;
@@ -96,6 +92,10 @@ export class createAuthObjects extends PIXI.Container {
   }
 
   clearInput() {
-    this.username = "";
+    if (this.usernameInput.isActive) {
+      this.username = "";
+    } else if (this.passInput.isActive) {
+      this.password = "";
+    }
   }
 }

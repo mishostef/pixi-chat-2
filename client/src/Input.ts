@@ -6,11 +6,9 @@ export class Input extends Base {
   constructor(
     label: string,
     element: DisplayObject,
-    highlight: DisplayObject,
-    pressed: DisplayObject,
     name: string,
   ) {
-    super(label, element, highlight, pressed);
+    super(label, element);
     console.log(`Input width is ${this.width} an height is ${this.height}`);
     this.interactive = true;
     this.name = name;

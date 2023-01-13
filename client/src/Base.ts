@@ -10,29 +10,15 @@ export class Base extends Container {
   private _label: string;
   private text: Text;
 
-  constructor(
-    label: string,
-    private element: DisplayObject,
-    private highlight: DisplayObject,
-    private pressed: DisplayObject
-  ) {
+  constructor(label: string, private element: DisplayObject) {
     super();
 
-    this.addChild(this.element, this.highlight, this.pressed);
-    this.highlight.renderable = false;
-    this.pressed.renderable = false;
-
+    this.addChild(element);
     this.text = new Text("", style);
-    this.text.anchor.set(0.5, 0.5);
+    this.text.anchor.set(0.1, 0.5);
     this.label = label;
     this.addChild(this.text);
-
     this.interactive = true;
-
-    this.on("pointerenter", this.onEnter.bind(this));
-    this.on("pointerleave", this.onLeave.bind(this));
-    this.on("pointerdown", this.onDown.bind(this));
-    this.on("pointerup", this.onUp.bind(this));
   }
   get height() {
     return this.element.getBounds().height;
@@ -47,30 +33,29 @@ export class Base extends Container {
   set label(value: string) {
     this._label = value;
     this.text.text = value;
-    this.text.position.set(this.width / 2, this.height / 2);
+    this.text.position.set(this.width / 10, this.height / 2);
   }
 
-  private onEnter() {
-    this.element.renderable = false;
-    this.highlight.renderable = true;
-    this.pressed.renderable = false;
-  }
+  // private onEnter() {
+  //   this.element.renderable = false;
+  //   this.highlight.renderable = true;
+  //   this.pressed.renderable = false;
+  // }
 
-  private onLeave() {
-    this.element.renderable = true;
-    this.highlight.renderable = false;
-    this.pressed.renderable = false;
-  }
+  // private onLeave() {
+  //   this.element.renderable = true;
+  //   this.highlight.renderable = false;
+  //   this.pressed.renderable = false;
+  // }
 
-  private onDown() {
-    this.element.renderable = false;
-    this.highlight.renderable = false;
-    this.pressed.renderable = true;
-  }
+  // private onDown() {
+  //   this.element.renderable = false;
+  //   this.highlight.renderable = false;
+  //   this.pressed.renderable = true;
+  // }
 
-  protected onUp() {
-    this.element.renderable = true;
-    this.highlight.renderable = false;
-    this.pressed.renderable = false;
-  }
+  // protected onUp() {
+  //   this.element.renderable = true;
+  //   this.highlight.renderable = false;
+  //   this.pressed.renderable = false;
 }

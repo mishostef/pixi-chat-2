@@ -14,12 +14,10 @@ export class TextArea extends Input {
   constructor(
     label: string,
     element: DisplayObject,
-    highlight: DisplayObject,
-    pressed: DisplayObject,
     name: string,
     messages: string[]
   ) {
-    super(label, element, highlight, pressed, name);
+    super(label, element, name);
     this.messages = messages;
   }
   refreshOutput() {

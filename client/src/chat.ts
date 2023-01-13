@@ -21,7 +21,7 @@ export class createChatUI extends PIXI.Container {
     this.messages = [];
     this.clearBtn = new Button(
       "Clear",
-      this.clearInput,
+      this.clearInput.bind(this),
       createPanel(buttonTiles, 150, 50),
       createPanel(hlTiles, 150, 50),
       createPanel(pressedTiles, 150, 50)
@@ -67,6 +67,6 @@ export class createChatUI extends PIXI.Container {
   }
 
   clearInput() {
-    this.messages.currentMessage = "";
+    this.lastMessage = "";
   }
 }

@@ -1,8 +1,10 @@
 import * as PIXI from "pixi.js";
+
 import { tileTexture, isAlphaNumeric } from "./utility";
 import { io } from "socket.io-client";
 import { createAuthObjects } from "./auth";
 import { createChatUI } from "./chat";
+import { INPUT_OFFSET, style } from "./constants";
 
 let isRefreshOutputNeeded = false;
 const canvasWidht = 800;
@@ -59,15 +61,7 @@ async function init() {
   app.stage.addChild(createChat.ui);
   app.ticker.add(update);
   function update() {
-    authObjects.initialUi.renderable = isInitialScreenVible;
-    authObjects.clearAuth.renderable = isInitialScreenVible;
-    authObjects.sendAuth.renderable = isInitialScreenVible;
-
-    createChat.ui.renderable = !isInitialScreenVible;
-    createChat.ui.interactive = !isInitialScreenVible;
-    createChat.clearBtn.interactive = !isInitialScreenVible;
-    createChat.sendBtn.interactive = !isInitialScreenVible;
-    createChat.textInput.interactive = !isInitialScreenVible;
+    setUI(authObjects, createChat);
     if (isInitialScreenVible) {
       handleAuth(authObjects);
     } else {
@@ -77,16 +71,50 @@ async function init() {
   document.body.appendChild(app.view as HTMLCanvasElement);
 }
 
-function handleAlphanumeric(authObjects: createAuthObjects, key: string, createChat: createChatUI) {
-  if (isInitialScreenVible) {
-    authObjects.passInput.isActive
-      ? (authObjects.password += key)
-      : (authObjects.username += key);
-  } else {
-    createChat.lastMessage += key;
-  }
+function setUI(authObjects: createAuthObjects, createChat: createChatUI) {
+  authObjects.initialUi.renderable = isInitialScreenVible;
+  authObjects.clearAuth.renderable = isInitialScreenVible;
+  authObjects.sendAuth.renderable = isInitialScreenVible;
+
+  createChat.ui.renderable = !isInitialScreenVible;
+  createChat.ui.interactive = !isInitialScreenVible;
+  createChat.clearBtn.interactive = !isInitialScreenVible;
+  createChat.sendBtn.interactive = !isInitialScreenVible;
+  createChat.textInput.interactive = !isInitialScreenVible;
 }
 
+function handleAlphanumeric(
+  authObjects: createAuthObjects,
+  key: string,
+  createChat: createChatUI
+) {
+  if (isInitialScreenVible) {
+    if (authObjects.passInput.isActive) {
+      if (
+        getTextWidth("*".repeat(authObjects.password.length)) <
+        authObjects.passInput.width - INPUT_OFFSET
+      ) {
+        authObjects.password += key;
+      }
+    } else {
+      if (
+        getTextWidth(authObjects.username) <
+        authObjects.usernameInput.width - INPUT_OFFSET
+      ) {
+        authObjects.username += key;
+      }
+    }
+  } else {
+    if (
+      getTextWidth(createChat.lastMessage) <
+      createChat.textInput.width - INPUT_OFFSET
+    )
+      createChat.lastMessage += key;
+  }
+}
+function getTextWidth(text) {
+  return PIXI.TextMetrics.measureText(text, style).width;
+}
 function handleChat(createChat: createChatUI) {
   if (createChat.isMessageAck) {
     socket.emit("msg", {
@@ -114,10 +142,10 @@ function handleAuth(authObjects: createAuthObjects) {
   }
   if (authObjects.usernameInput.isActive) {
     authObjects.usernameInput.label = authObjects.username + "|";
-    authObjects.passInput.label = authObjects.password;
+    authObjects.passInput.label = "*".repeat(authObjects.password.length);
   } else {
     authObjects.usernameInput.label = authObjects.username;
-    authObjects.passInput.label = authObjects.password + "|";
+    authObjects.passInput.label = "*".repeat(authObjects.password.length) + "|";
   }
 }
 
@@ -133,10 +161,14 @@ function handleEnter(authObjects: createAuthObjects, createChat: createChatUI) {
       message: createChat.lastMessage,
       id: socket.id,
     });
+    createChat.lastMessage = "";
   }
 }
 
-function hanleBackspace(authObjects: createAuthObjects, createChat: createChatUI) {
+function hanleBackspace(
+  authObjects: createAuthObjects,
+  createChat: createChatUI
+) {
   if (isInitialScreenVible) {
     authObjects.passInput.isActive
       ? (authObjects.password = authObjects.password.slice(0, -1))

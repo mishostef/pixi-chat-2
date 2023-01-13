@@ -49,11 +49,7 @@ export class TextArea extends Input {
     if (this.bitmapTextY + 100 <= this.height) {
       this.bitmapTextY += 50;
     } else {
-      if (this.bitmapTextX === 30) {
-        this.bitmapTextY = 50;
-      } else {
-        this.clearOutput();
-      }
+      this.clearOutput();
     }
     bitmapFontText.x = this.bitmapTextX;
     bitmapFontText.y = this.bitmapTextY;

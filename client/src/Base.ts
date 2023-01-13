@@ -35,27 +35,4 @@ export class Base extends Container {
     this.text.text = value;
     this.text.position.set(this.width / 10, this.height / 2);
   }
-
-  // private onEnter() {
-  //   this.element.renderable = false;
-  //   this.highlight.renderable = true;
-  //   this.pressed.renderable = false;
-  // }
-
-  // private onLeave() {
-  //   this.element.renderable = true;
-  //   this.highlight.renderable = false;
-  //   this.pressed.renderable = false;
-  // }
-
-  // private onDown() {
-  //   this.element.renderable = false;
-  //   this.highlight.renderable = false;
-  //   this.pressed.renderable = true;
-  // }
-
-  // protected onUp() {
-  //   this.element.renderable = true;
-  //   this.highlight.renderable = false;
-  //   this.pressed.renderable = false;
 }

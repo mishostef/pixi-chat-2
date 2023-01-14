@@ -4,11 +4,10 @@ import { tileTexture, isAlphaNumeric } from "./utility";
 import { io } from "socket.io-client";
 import { createAuthObjects } from "./auth";
 import { createChatUI } from "./chat";
-import { INPUT_OFFSET, style } from "./constants";
+import { CANVAS_WIDTH, CANVAS_HEIGHT, CANVAS_COLOR } from "./constants";
 
 let isRefreshOutputNeeded = false;
-const canvasWidht = 800;
-const canvasHeight = 700;
+
 let isInitialScreenVible = true;
 
 let socket = io("http://localhost:3000/");
@@ -20,7 +19,6 @@ socket.on("connect", () => {
 socket.on("error", (error) => alert(error));
 
 socket.on("ack", (username) => {
-  console.log(`my username is ${username}`);
   isInitialScreenVible = false;
 });
 
@@ -29,9 +27,9 @@ init();
 
 async function init() {
   const app = new PIXI.Application({
-    width: canvasWidht,
-    height: canvasHeight,
-    backgroundColor: 0x4472c4,
+    width: CANVAS_WIDTH,
+    height: CANVAS_HEIGHT,
+    backgroundColor: CANVAS_COLOR,
   });
 
   const buttonTiles = await tileTexture("assets/bevel.png", 25, 105, 25, 105);
@@ -90,31 +88,15 @@ function handleAlphanumeric(
 ) {
   if (isInitialScreenVible) {
     if (authObjects.passInput.isActive) {
-      if (
-        getTextWidth("*".repeat(authObjects.password.length)) <
-        authObjects.passInput.width - INPUT_OFFSET
-      ) {
-        authObjects.password += key;
-      }
+      authObjects.Password += key;
     } else {
-      if (
-        getTextWidth(authObjects.username) <
-        authObjects.usernameInput.width - INPUT_OFFSET
-      ) {
-        authObjects.username += key;
-      }
+      authObjects.Username += key;
     }
   } else {
-    if (
-      getTextWidth(createChat.lastMessage) <
-      createChat.textInput.width - INPUT_OFFSET
-    )
-      createChat.lastMessage += key;
+    createChat.LastMessage += key;
   }
 }
-function getTextWidth(text) {
-  return PIXI.TextMetrics.measureText(text, style).width;
-}
+
 function handleChat(createChat: createChatUI) {
   if (createChat.isMessageAck) {
     socket.emit("msg", {

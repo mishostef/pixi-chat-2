@@ -1,8 +1,9 @@
 import * as PIXI from "pixi.js";
 import { TextStyle, Text, DisplayObject } from "pixi.js";
 import { Button } from "./Button";
+import { INPUT_OFFSET, style } from "./constants";
 import { Input } from "./Input";
-import { TiledTexture, createPanel } from "./utility";
+import { TiledTexture, createPanel, getTextWidth } from "./utility";
 
 export class createAuthObjects extends PIXI.Container {
   buttonTiles: DisplayObject;
@@ -27,11 +28,7 @@ export class createAuthObjects extends PIXI.Container {
       createPanel(hlTiles, 150, 50),
       createPanel(pressedTiles, 150, 50)
     );
-    const style = new TextStyle({
-      fontFamily: "Arial",
-      fontSize: 24,
-      fill: 0xffffff,
-    });
+
     const usernameText = new Text("username", style);
     usernameText.position.set(25, 500);
     const passText = new Text("password", style);
@@ -97,5 +94,25 @@ export class createAuthObjects extends PIXI.Container {
     } else if (this.passInput.isActive) {
       this.password = "";
     }
+  }
+  set Password(pass) {
+    if (
+      getTextWidth("*".repeat(this.password.length)) <
+      this.passInput.width - INPUT_OFFSET
+    ) {
+      this.password = pass;
+    }
+  }
+
+  set Username(username) {
+    if (getTextWidth(this.username) < this.usernameInput.width - INPUT_OFFSET) {
+      this.username = username;
+    }
+  }
+  get Username() {
+    return this.username;
+  }
+  get Password() {
+    return this.password;
   }
 }

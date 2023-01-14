@@ -1,7 +1,7 @@
-import { Button } from "./Button";
+import { text } from "express";
 import * as PIXI from "pixi.js";
 import { DisplayObject } from "pixi.js";
-import { Base } from "./Base";
+import { OUTPUT_WIDTH } from "./constants";
 import { Input } from "./Input";
 
 export class TextArea extends Input {
@@ -51,9 +51,29 @@ export class TextArea extends Input {
     } else {
       this.clearOutput();
     }
-    bitmapFontText.x = this.bitmapTextX;
-    bitmapFontText.y = this.bitmapTextY;
-    this.addChild(bitmapFontText);
+    if (bitmapFontText.getBounds().width > this.width) {
+      const halves = lastMessage.split(":");
+      const nameText = new PIXI.BitmapText(halves[0], {
+        fontName: "Desyrel",
+        fontSize: 20,
+        align: "left",
+      });
+      const messageText = new PIXI.BitmapText(halves[1], {
+        fontName: "Desyrel",
+        fontSize: 20,
+        align: "left",
+      });
+      nameText.x = this.bitmapTextX;
+      nameText.y = this.bitmapTextY;
+      this.bitmapTextY += 50;
+      messageText.x = this.bitmapTextX;
+      messageText.y = this.bitmapTextY;
+      this.addChild(nameText, messageText);
+    } else {
+      bitmapFontText.x = this.bitmapTextX;
+      bitmapFontText.y = this.bitmapTextY;
+      this.addChild(bitmapFontText);
+    }
   }
   clearOutput() {
     if (this.label) {

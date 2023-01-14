@@ -6,3 +6,8 @@ export const style = new TextStyle({
   fill: 0xffffff,
 });
 export const INPUT_OFFSET = 20;
+export const CANVAS_WIDTH = 800;
+export const CANVAS_HEIGHT = 700;
+export const CANVAS_COLOR = 0x4472c4;
+export const OUTPUT_WIDTH = 750;
+export const OUTPUT_HEIGHT = 475;

@@ -1,10 +1,10 @@
 import { Button } from "./Button";
-import { createPanel } from "./utility";
+import { createPanel, getTextWidth } from "./utility";
 import * as PIXI from "pixi.js";
 import { Input } from "./Input";
 import { TextArea } from "./TextArea";
-const ouputWidth = 750;
-const ouputHeight = 475;
+import { INPUT_OFFSET, OUTPUT_HEIGHT, OUTPUT_WIDTH } from "./constants";
+
 
 export class createChatUI extends PIXI.Container {
   clearBtn: Button;
@@ -40,7 +40,7 @@ export class createChatUI extends PIXI.Container {
     );
     this.textOutput = new TextArea(
       "chat history",
-      createPanel(buttonTiles, ouputWidth, ouputHeight),
+      createPanel(buttonTiles, OUTPUT_WIDTH, OUTPUT_HEIGHT),
       "output",
       this.messages
     );
@@ -68,5 +68,12 @@ export class createChatUI extends PIXI.Container {
 
   clearInput() {
     this.lastMessage = "";
+  }
+  get LastMessage() {
+    return this.lastMessage;
+  }
+  set LastMessage(msg) {
+    if (getTextWidth(this.lastMessage) < this.textInput.width - INPUT_OFFSET)
+      this.lastMessage = msg;
   }
 }

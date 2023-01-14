@@ -1,4 +1,5 @@
 import * as PIXI from "pixi.js";
+import { style } from "./constants";
 
 export type TiledTexture = [
   [PIXI.Texture, PIXI.Texture, PIXI.Texture],
@@ -141,4 +142,7 @@ function slice(baseTexture, x, y, w, h) {
 export function isAlphaNumeric(inputChar) {
   const regex = /^([a-zA-Z0-9_-])$/;
   return regex.test(inputChar);
+}
+export function getTextWidth(text) {
+  return PIXI.TextMetrics.measureText(text, style).width;
 }

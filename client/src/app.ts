@@ -45,7 +45,7 @@ async function init() {
     } else if (key === "Enter") {
       handleEnter(authObjects, createChat);
     } else if (key === "Backspace") {
-      hanleBackspace(authObjects, createChat);
+      handleBackspace(authObjects, createChat);
     }
   });
 
@@ -147,7 +147,7 @@ function handleEnter(authObjects: createAuthObjects, createChat: createChatUI) {
   }
 }
 
-function hanleBackspace(
+function handleBackspace(
   authObjects: createAuthObjects,
   createChat: createChatUI
 ) {

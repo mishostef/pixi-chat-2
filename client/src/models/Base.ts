@@ -7,10 +7,10 @@ const style = new TextStyle({
 });
 
 export class Base extends Container {
-  private _label: string;
-  private text: Text;
+  protected _label: string;
+  protected text: Text;
 
-  constructor(label: string, private element: DisplayObject) {
+  constructor(label: string, protected element: DisplayObject) {
     super();
 
     this.addChild(element);

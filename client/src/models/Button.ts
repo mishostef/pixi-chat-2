@@ -1,23 +1,16 @@
 import { Container, DisplayObject, Text, TextStyle } from "pixi.js";
+import { style } from "../constants";
+import { Base } from "./Base";
 
-const style = new TextStyle({
-  fontFamily: "Arial",
-  fontSize: 24,
-  fill: 0xffffff,
-});
-
-export class Button extends Container {
-  private _label: string;
-  private text: Text;
-
+export class Button extends Base {
   constructor(
     label: string,
     private callback: () => void,
-    private element: DisplayObject,
+    protected element: DisplayObject,
     private highlight: DisplayObject,
     private pressed: DisplayObject
   ) {
-    super();
+    super(label, element);
 
     this.addChild(this.element, this.highlight, this.pressed);
     this.highlight.renderable = false;
@@ -34,15 +27,6 @@ export class Button extends Container {
     this.on("pointerleave", this.onLeave.bind(this));
     this.on("pointerdown", this.onDown.bind(this));
     this.on("pointerup", this.onUp.bind(this));
-  }
-  get height() {
-    return this.element.getBounds().height;
-  }
-  get width() {
-    return this.element.getBounds().width;
-  }
-  get label() {
-    return this._label;
   }
 
   set label(value: string) {

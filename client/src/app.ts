@@ -2,8 +2,8 @@ import * as PIXI from "pixi.js";
 
 import { tileTexture, isAlphaNumeric } from "./utility";
 import { io } from "socket.io-client";
-import { createAuthObjects } from "./auth";
-import { createChatUI } from "./chat";
+import { createAuthObjects } from "./views/auth";
+import { createChatUI } from "./views/chat";
 import { CANVAS_WIDTH, CANVAS_HEIGHT, CANVAS_COLOR } from "./constants";
 
 let isRefreshOutputNeeded = false;

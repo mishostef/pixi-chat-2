@@ -1,9 +1,9 @@
-import { Button } from "./Button";
-import { createPanel, getTextWidth } from "./utility";
+import { Button } from "../models/Button";
+import { createPanel, getTextWidth } from "../utility";
 import * as PIXI from "pixi.js";
-import { Input } from "./Input";
-import { TextArea } from "./TextArea";
-import { INPUT_OFFSET, OUTPUT_HEIGHT, OUTPUT_WIDTH } from "./constants";
+import { Input } from "../models/Input";
+import { TextArea } from "../models/TextArea";
+import { INPUT_OFFSET, OUTPUT_HEIGHT, OUTPUT_WIDTH } from "../constants";
 
 
 export class createChatUI extends PIXI.Container {

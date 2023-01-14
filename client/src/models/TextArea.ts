@@ -1,7 +1,7 @@
 import { text } from "express";
 import * as PIXI from "pixi.js";
-import { DisplayObject } from "pixi.js";
-import { OUTPUT_WIDTH } from "./constants";
+import { DisplayObject, TextStyleAlign } from "pixi.js";
+import { BITMAP_STYLE, OUTPUT_WIDTH } from "../constants";
 import { Input } from "./Input";
 
 export class TextArea extends Input {
@@ -40,12 +40,7 @@ export class TextArea extends Input {
 
   appendMessage() {
     const lastMessage = this.messages[this.messages.length - 1];
-    const bitmapFontText = new PIXI.BitmapText(lastMessage, {
-      fontName: "Desyrel",
-      fontSize: 20,
-      align: "left",
-    });
-
+    const bitmapFontText = new PIXI.BitmapText(lastMessage, BITMAP_STYLE);
     if (this.bitmapTextY + 100 <= this.height) {
       this.bitmapTextY += 50;
     } else {
@@ -53,16 +48,8 @@ export class TextArea extends Input {
     }
     if (bitmapFontText.getBounds().width > this.width) {
       const halves = lastMessage.split(":");
-      const nameText = new PIXI.BitmapText(halves[0], {
-        fontName: "Desyrel",
-        fontSize: 20,
-        align: "left",
-      });
-      const messageText = new PIXI.BitmapText(halves[1], {
-        fontName: "Desyrel",
-        fontSize: 20,
-        align: "left",
-      });
+      const nameText = new PIXI.BitmapText(halves[0], BITMAP_STYLE);
+      const messageText = new PIXI.BitmapText(halves[1], BITMAP_STYLE);
       nameText.x = this.bitmapTextX;
       nameText.y = this.bitmapTextY;
       this.bitmapTextY += 50;

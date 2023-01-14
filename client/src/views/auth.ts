@@ -1,9 +1,9 @@
 import * as PIXI from "pixi.js";
 import { TextStyle, Text, DisplayObject } from "pixi.js";
-import { Button } from "./Button";
-import { INPUT_OFFSET, style } from "./constants";
-import { Input } from "./Input";
-import { TiledTexture, createPanel, getTextWidth } from "./utility";
+import { Button } from "../models/Button";
+import { INPUT_OFFSET, style } from "../constants";
+import { Input } from "../models/Input";
+import { TiledTexture, createPanel, getTextWidth } from "../utility";
 
 export class createAuthObjects extends PIXI.Container {
   buttonTiles: DisplayObject;

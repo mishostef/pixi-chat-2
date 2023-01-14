@@ -72,16 +72,18 @@ export class createAuthObjects extends PIXI.Container {
       passText
     );
     this.initialUi.interactive = true;
-    this.initialUi.on("click", (ev) => {
-      const target = ev.target;
-      if ((target as Input).name === "username") {
-        this.usernameInput.isActive = true;
-        this.passInput.isActive = false;
-      } else if ((target as Input).name === "pass") {
-        this.usernameInput.isActive = false;
-        this.passInput.isActive = true;
-      }
-    });
+    this.initialUi.on("click", this.handleClick.bind(this));
+  }
+
+  handleClick(ev) {
+    const target = ev.target;
+    if ((target as Input).name === "username") {
+      this.usernameInput.isActive = true;
+      this.passInput.isActive = false;
+    } else if ((target as Input).name === "pass") {
+      this.usernameInput.isActive = false;
+      this.passInput.isActive = true;
+    }
   }
   sendMessage1() {
     this.isSendConfirmed = true;

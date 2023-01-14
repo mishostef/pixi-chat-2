@@ -1,10 +1,5 @@
 import { Container, DisplayObject, Text, TextStyle } from "pixi.js";
-
-const style = new TextStyle({
-  fontFamily: "Arial",
-  fontSize: 24,
-  fill: 0xffffff,
-});
+import { style } from "../constants";
 
 export class Base extends Container {
   protected _label: string;

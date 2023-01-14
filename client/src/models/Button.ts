@@ -1,4 +1,4 @@
-import { Container, DisplayObject, Text, TextStyle } from "pixi.js";
+import { DisplayObject, Text } from "pixi.js";
 import { style } from "../constants";
 import { Base } from "./Base";
 

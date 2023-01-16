@@ -9,7 +9,6 @@ export class Input extends Base {
     name: string,
   ) {
     super(label, element);
-    console.log(`Input width is ${this.width} an height is ${this.height}`);
     this.interactive = true;
     this.name = name;
     this.on("click", (ev) => this.onClick(ev));
@@ -21,7 +20,6 @@ export class Input extends Base {
     this.label = "";
   }
   onClick(ev) {
-    console.log(`input ${this.name} clicked`);
     this.activate();
   }
 }

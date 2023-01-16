@@ -87,7 +87,6 @@ export class createAuthObjects extends PIXI.Container {
   }
   sendMessage1() {
     this.isSendConfirmed = true;
-    console.log("cb");
   }
 
   clearInput() {
